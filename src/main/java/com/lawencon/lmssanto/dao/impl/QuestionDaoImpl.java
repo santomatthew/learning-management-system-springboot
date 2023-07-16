@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ import com.lawencon.lmssanto.model.QuestionType;
 @Profile("native-query")
 public class QuestionDaoImpl implements QuestionDao {
 
+	@PersistenceContext
 	private EntityManager em;
 
 	@Override
@@ -28,8 +30,8 @@ public class QuestionDaoImpl implements QuestionDao {
 
 	@Override
 	public List<Question> getByTaskId(Long taskId) {
-		final String sql = "SELECT tq.id, tq.question , tq.question_type_id , tqt.question_type_code ,tq.ver "
-				+ " FROM t_question tq " + " INNER JOIN t_question_type tqt ON tq.question_type_id = tqt.id "
+		final String sql = "SELECT tq.id, tq.question , tq.question_type_id , tqt.question_type_code ,tq.ver ,tq.created_by "
+				+ " FROM t_question tq INNER JOIN t_question_type tqt ON tq.question_type_id = tqt.id "
 				+ " WHERE tq.task_id = :taskId";
 
 		final List<?> questionObjs = this.em.createNativeQuery(sql).setParameter("taskId", taskId).getResultList();
@@ -55,6 +57,7 @@ public class QuestionDaoImpl implements QuestionDao {
 
 				getQuestion.setQuestionType(questionType);
 				getQuestion.setVer(Integer.valueOf(questionArr[4].toString()));
+				getQuestion.setCreatedBy(Long.valueOf(questionArr[5].toString()));
 
 				questions.add(getQuestion);
 			}

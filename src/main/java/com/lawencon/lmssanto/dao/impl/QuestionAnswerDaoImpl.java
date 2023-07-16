@@ -1,7 +1,5 @@
 package com.lawencon.lmssanto.dao.impl;
 
-import java.sql.SQLException;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -20,12 +18,12 @@ public class QuestionAnswerDaoImpl implements QuestionAnswerDao {
 
 	@Override
 	public QuestionAnswer getByQuestionIdAndCreatedBy(Long questionId, Long createdBy) {
-		final String sql = "SELECT tqa.id, tqa.essay_answer , tqa.ver"
+		final String sql = "SELECT tqa.id, tqa.essay_answer , tqa.ver "
 				+ " FROM t_question_answer tqa WHERE tqa.question_id = :questionId "
 				+ " AND tqa.created_by = :createdBy";
 
 		final Object questionAnswerObj = this.em.createNativeQuery(sql).setParameter("questionId", questionId)
-				.setParameter("createdBy", createdBy);
+				.setParameter("createdBy", createdBy).getSingleResult();
 
 		final Object[] questionAnswerArr = (Object[]) questionAnswerObj;
 		QuestionAnswer getQuestionAnswer = null;
@@ -38,7 +36,7 @@ public class QuestionAnswerDaoImpl implements QuestionAnswerDao {
 			} else {
 				getQuestionAnswer.setEssayAnswer(null);
 			}
-			
+
 			getQuestionAnswer.setVer(Integer.valueOf(questionAnswerArr[2].toString()));
 
 		}

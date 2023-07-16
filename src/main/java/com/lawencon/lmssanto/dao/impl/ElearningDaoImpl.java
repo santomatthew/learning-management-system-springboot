@@ -3,6 +3,7 @@ package com.lawencon.lmssanto.dao.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -14,12 +15,12 @@ import com.lawencon.lmssanto.model.Elearning;
 @Profile("native-query")
 public class ElearningDaoImpl implements ElearningDao {
 
+	@PersistenceContext
 	private EntityManager em;
 
 	@Override
 	public Elearning insert(Elearning elearning) {
 		this.em.persist(elearning);
-
 		return elearning;
 	}
 

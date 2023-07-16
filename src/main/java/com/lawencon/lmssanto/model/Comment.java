@@ -11,14 +11,14 @@ import javax.persistence.Table;
 public class Comment extends BaseModel {
 
 	@ManyToOne
-	@JoinColumn(name="classroom_id")
+	@JoinColumn(name="forum_id")
 	private Forum forum;
 
 	@Column(name ="user_comment",  nullable = false)
 	private String userComment;
 	
 	@ManyToOne
-	@JoinColumn(name="user")
+	@JoinColumn(name="user_id")
 	private User user;
 
 	public Forum getForum() {

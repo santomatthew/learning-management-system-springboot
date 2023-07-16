@@ -1,6 +1,5 @@
 package com.lawencon.lmssanto.dao.impl;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.persistence.EntityManager;

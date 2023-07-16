@@ -37,32 +37,26 @@ public class StudentAttendanceDaoImpl implements StudentAttendanceDao {
 				+ " INNER JOIN t_profile tp ON tu.profile_id = tp.id " + " WHERE tsa.student_id = :studentId "
 				+ " AND tsa.elearning_id = :elearningId";
 
-		try {
-			final Object studentAttObj = this.em.createNativeQuery(sql).setParameter("studentId", studentId)
-					.setParameter("elearningId", elearningId).getSingleResult();
+		final Object studentAttObj = this.em.createNativeQuery(sql).setParameter("studentId", studentId)
+				.setParameter("elearningId", elearningId).getSingleResult();
 
-			final Object[] studentAttArr = (Object[]) studentAttObj;
-			StudentAttendance getStudentAttendance = null;
+		final Object[] studentAttArr = (Object[]) studentAttObj;
+		StudentAttendance getStudentAttendance = null;
 
-			if (studentAttArr.length > 0) {
-				getStudentAttendance = new StudentAttendance();
-				getStudentAttendance.setId(Long.valueOf(studentAttArr[0].toString()));
+		if (studentAttArr.length > 0) {
+			getStudentAttendance = new StudentAttendance();
+			getStudentAttendance.setId(Long.valueOf(studentAttArr[0].toString()));
 
-				final Elearning elearning = new Elearning();
-				elearning.setId(Long.valueOf(studentAttArr[1].toString()));
-				getStudentAttendance.setElearning(elearning);
+			final Elearning elearning = new Elearning();
+			elearning.setId(Long.valueOf(studentAttArr[1].toString()));
+			getStudentAttendance.setElearning(elearning);
 
-				getStudentAttendance.setAttendTime(Timestamp.valueOf(studentAttArr[2].toString()).toLocalDateTime());
-				getStudentAttendance.setIsApproved(Boolean.valueOf(studentAttArr[3].toString()));
-				getStudentAttendance.setVer(Integer.valueOf(studentAttArr[4].toString()));
-			}
-
-			return getStudentAttendance;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			getStudentAttendance.setAttendTime(Timestamp.valueOf(studentAttArr[2].toString()).toLocalDateTime());
+			getStudentAttendance.setIsApproved(Boolean.valueOf(studentAttArr[3].toString()));
+			getStudentAttendance.setVer(Integer.valueOf(studentAttArr[4].toString()));
 		}
+
+		return getStudentAttendance;
 
 	}
 

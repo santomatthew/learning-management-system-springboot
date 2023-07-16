@@ -2,6 +2,7 @@ package com.lawencon.lmssanto.dto.material;
 
 public class MaterialFilesGetResDto {
 
+	private Long id;
 	private String fileName;
 	private String ext;
 
@@ -19,6 +20,14 @@ public class MaterialFilesGetResDto {
 
 	public void setExt(String ext) {
 		this.ext = ext;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -148,7 +149,7 @@ public class StudentServiceImpl implements StudentService {
 
 		for (int i = 0; i < classRooms.size(); i++) {
 			final AllClassRoomGetResDto classRoom = new AllClassRoomGetResDto();
-			classRoom.setId(classRooms.get(i).getUpdatedBy());
+			classRoom.setId(classRooms.get(i).getId());
 			classRoom.setClassRoomName(classRooms.get(i).getClassroomName());
 			classRoom.setClassRoomCode(classRooms.get(i).getClassroomCode());
 			classRoomsResDto.add(classRoom);
@@ -174,6 +175,7 @@ public class StudentServiceImpl implements StudentService {
 
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createClassRoomEnroll(ClassRoomEnrollInsertReqDto classRoomEnrollInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
@@ -184,6 +186,7 @@ public class StudentServiceImpl implements StudentService {
 		final ClassRoom classRoom = classRoomDao.getById(classRoomEnrollInsertReqDto.getClassRoomId());
 		newClassRoomEnroll.setClassroom(classRoom);
 		newClassRoomEnroll.setStudent(student);
+		newClassRoomEnroll.setCreatedBy(student.getId());
 
 		newClassRoomEnroll = classRoomEnrollDao.insert(newClassRoomEnroll);
 
@@ -208,11 +211,13 @@ public class StudentServiceImpl implements StudentService {
 			final ElearningsGetResDto elearningGetResDto = new ElearningsGetResDto();
 			elearningGetResDto.setId(elearnings.get(i).getId());
 			elearningGetResDto.setElearningName(elearnings.get(i).getElearningName());
+			elearningGetResDto.setStartDate(elearnings.get(i).getStartDate());
 			elearningsGetResDto.add(elearningGetResDto);
 		}
 		return elearningsGetResDto;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createStudentAttendance(StudentAttInsertReqDto insertReqDto) {
 
@@ -227,6 +232,8 @@ public class StudentServiceImpl implements StudentService {
 		newStudentAttendance.setStudent(student);
 		newStudentAttendance.setElearning(elearning);
 		newStudentAttendance.setAttendTime(timeNow);
+		newStudentAttendance.setIsApproved(false);
+		newStudentAttendance.setCreatedBy(student.getId());
 		newStudentAttendance = studentAttendanceDao.insert(newStudentAttendance);
 
 		insertResDto.setId(newStudentAttendance.getId());
@@ -247,6 +254,7 @@ public class StudentServiceImpl implements StudentService {
 		final List<Comment> comments = commentDao.getAll(forum.getId());
 
 		final ForumGetResDto forumResDto = new ForumGetResDto();
+		forumResDto.setId(forum.getId());
 		forumResDto.setForumTitle(forum.getForumTitle());
 		forumResDto.setForumCode(forum.getForumCode());
 		forumResDto.setForumBody(forum.getForumBody());
@@ -287,21 +295,21 @@ public class StudentServiceImpl implements StudentService {
 		return getUser;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createComment(CommentInsertReqDto commentInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
 
 		final Long person = principalService.getPrincipal();
 		final User commentator = userDao.getById(person);
-		final LocalDateTime timeNow = LocalDateTime.now();
 		final Forum forum = forumDao.getById(commentInsertReqDto.getForumId());
 
 		Comment comment = new Comment();
 
-		comment.setCreatedAt(timeNow);
 		comment.setUser(commentator);
+		comment.setUserComment(commentInsertReqDto.getComment());
 		comment.setForum(forum);
-
+		comment.setCreatedBy(commentator.getId());
 		comment = commentDao.insert(comment);
 
 		insertResDto.setId(comment.getId());
@@ -325,6 +333,7 @@ public class StudentServiceImpl implements StudentService {
 				final List<MaterialFilesGetResDto> materialFilesDto = new ArrayList<>();
 				for (int j = 0; j < materialDetails.size(); j++) {
 					final MaterialFilesGetResDto materialFileDto = new MaterialFilesGetResDto();
+					materialFileDto.setId(materialDetails.get(j).getId());
 					materialFileDto.setFileName(materialDetails.get(j).getMaterialFile().getFileName());
 					materialFileDto.setExt(materialDetails.get(j).getMaterialFile().getExt());
 					materialFilesDto.add(materialFileDto);
@@ -372,6 +381,7 @@ public class StudentServiceImpl implements StudentService {
 
 		for (int i = 0; i < questions.size(); i++) {
 			final QuestionsGetResDto questionResDto = new QuestionsGetResDto();
+
 			questionResDto.setTeacherId(questions.get(i).getCreatedBy());
 			questionResDto.setQuestionId(questions.get(i).getId());
 			if (questions.get(i).getQuestionType().getQuestionTypeCode().equals(QuestionTypes.ESSAY.questionTypeCode)) {
@@ -381,18 +391,21 @@ public class StudentServiceImpl implements StudentService {
 				final List<QuestionFilesResDto> questionFilesResDto = new ArrayList<>();
 				for (int j = 0; j < questionFiles.size(); j++) {
 					final QuestionFilesResDto questionFileResDto = new QuestionFilesResDto();
-					questionFileResDto.setId(questionFiles.get(i).getId());
-					questionFileResDto.setFileName(questionFiles.get(i).getQuestionFile().getFileName());
-					questionFileResDto.setExt(questionFiles.get(i).getQuestionFile().getExt());
+					questionFileResDto.setId(questionFiles.get(j).getId());
+					questionFileResDto.setFileName(questionFiles.get(j).getQuestionFile().getFileName());
+					questionFileResDto.setExt(questionFiles.get(j).getQuestionFile().getExt());
 					questionFilesResDto.add(questionFileResDto);
 				}
 				questionResDto.setQuestionFiles(questionFilesResDto);
 			}
+			
+			questionsResDto.add(questionResDto);
 		}
 
 		return questionsResDto;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createAnswer(AnswersInsertReqDto answersInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
@@ -451,7 +464,8 @@ public class StudentServiceImpl implements StudentService {
 
 	@Override
 	public QuestionAnswer getQuestionAnswers(QuestionAnswer questionAnswer) {
-		final QuestionAnswer getQuestionAnswer = questionAnswerDao.getByQuestionIdAndCreatedBy(questionAnswer.getQuestion().getId(), questionAnswer.getCreatedBy());
+		final QuestionAnswer getQuestionAnswer = questionAnswerDao
+				.getByQuestionIdAndCreatedBy(questionAnswer.getQuestion().getId(), questionAnswer.getCreatedBy());
 		return getQuestionAnswer;
 	}
 

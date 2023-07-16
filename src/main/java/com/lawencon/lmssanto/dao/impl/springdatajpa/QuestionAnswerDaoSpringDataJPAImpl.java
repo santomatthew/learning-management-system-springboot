@@ -38,6 +38,8 @@ public class QuestionAnswerDaoSpringDataJPAImpl implements QuestionAnswerDao {
 			} else {
 				getQuestionAnswer.setEssayAnswer(null);
 			}
+			
+			getQuestionAnswer.setVer(Integer.valueOf(questionAnswerArr[2].toString()));
 
 		}
 		return getQuestionAnswer;

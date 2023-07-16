@@ -59,6 +59,8 @@ public class QuestionDaoSpringDataJPAImpl implements QuestionDao {
 				questionType.setQuestionTypeCode(questionArr[3].toString());
 
 				getQuestion.setQuestionType(questionType);
+				getQuestion.setVer(Integer.valueOf(questionArr[4].toString()));
+				getQuestion.setCreatedBy(Long.valueOf(questionArr[5].toString()));
 
 				questions.add(getQuestion);
 			}

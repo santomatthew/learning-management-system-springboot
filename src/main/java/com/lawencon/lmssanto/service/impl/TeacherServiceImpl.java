@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -70,6 +71,7 @@ import com.lawencon.lmssanto.model.Task;
 import com.lawencon.lmssanto.model.User;
 import com.lawencon.lmssanto.service.PrincipalService;
 import com.lawencon.lmssanto.service.TeacherService;
+import com.lawencon.lmssanto.util.DateUtil;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
@@ -138,6 +140,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return classRoomsDto;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createElearning(ElearningInsertReqDto elearningInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
@@ -154,18 +157,21 @@ public class TeacherServiceImpl implements TeacherService {
 
 		// Insert elearning
 		Elearning elearning = new Elearning();
+		elearning.setElearningName(elearningInsertReqDto.getElearningName());
 		elearning.setClassroom(classRoom);
 		elearning.setElearningPhoto(elearningPhoto);
-		elearning.setStartDate(elearningInsertReqDto.getStartDate());
-		elearning.setEndDate(elearningInsertReqDto.getEndDate());
+		elearning.setStartDate(DateUtil.parseStringToDate(elearningInsertReqDto.getStartDate()));
+		elearning.setEndDate(DateUtil.parseStringToDate(elearningInsertReqDto.getEndDate()));
 		elearning.setCreatedBy(teacher.getId());
 
 		elearning = elearningDao.insert(elearning);
 
 		Forum newForum = new Forum();
+		newForum.setElearning(elearning);
 		newForum.setForumTitle(elearningInsertReqDto.getForumTitle());
 		newForum.setForumCode(elearningInsertReqDto.getForumCode());
 		newForum.setForumBody(elearningInsertReqDto.getForumBody());
+		newForum.setCreatedBy(teacher.getId());
 		newForum = forumDao.insert(newForum);
 
 		insertResDto.setId(elearning.getId());
@@ -183,6 +189,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return forumDb;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createMaterial(MaterialsInsertReqDto materialsInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
@@ -234,6 +241,7 @@ public class TeacherServiceImpl implements TeacherService {
 
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createTask(TaskInsertReqDto taskInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
@@ -241,11 +249,12 @@ public class TeacherServiceImpl implements TeacherService {
 		final User teacher = userDao.getById(person);
 		final Elearning elearning = elearningDao.getById(taskInsertReqDto.getElearningId());
 
+		// Create Task
 		Task task = new Task();
 		task.setTaskName(taskInsertReqDto.getTaskName());
 		task.setElearning(elearning);
-		task.setTaskStartTime(taskInsertReqDto.getTaskStartTime());
-		task.setTaskEndTime(taskInsertReqDto.getTaskEndTime());
+		task.setTaskStartTime(DateUtil.parseStringToDate(taskInsertReqDto.getTaskStartTime()));
+		task.setTaskEndTime(DateUtil.parseStringToDate(taskInsertReqDto.getTaskEndTime()));
 		task.setCreatedBy(teacher.getId());
 		task = taskDao.insert(task);
 
@@ -255,6 +264,7 @@ public class TeacherServiceImpl implements TeacherService {
 			final QuestionType questionType = questionTypeDao.getById(questions.get(i).getQuestionTypeId());
 			question.setTask(task);
 			question.setQuestionType(questionType);
+			question.setCreatedBy(teacher.getId());
 
 			if (questions.get(i).getQuestionText() != null) {
 				question.setQuestion(questions.get(i).getQuestionText());
@@ -285,6 +295,7 @@ public class TeacherServiceImpl implements TeacherService {
 
 		}
 
+		insertResDto.setId(task.getId());
 		insertResDto.setMessage("Berhasil membuat task baru");
 		return insertResDto;
 	}
@@ -298,6 +309,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return newFile;
 	}
 
+	@Transactional
 	@Override
 	public List<QuestionTypeGetResDto> getAllQuestionTypes() {
 		final List<QuestionType> questionTypes = questionTypeDao.getAll();
@@ -343,6 +355,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return result;
 	}
 
+	@Transactional
 	@Override
 	public List<ElearningsGetResDto> getElearningsByClassRoom(Long classRoomId) {
 		final List<Elearning> elearnings = elearningDao.getByClassRoom(classRoomId);
@@ -359,6 +372,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return elearningResDto;
 	}
 
+	@Transactional
 	@Override
 	public List<StudentAttsGetResDto> getStudentAttendance(Long elearningId) {
 		final List<StudentAttendance> studentAttendances = studentAttendanceDao.getAll(elearningId);
@@ -376,6 +390,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return studentAttendancesResDto;
 	}
 
+	@Transactional
 	@Override
 	public UpdateResDto updateStudentAttendance(StudentAttUpdateReqDto studentAttUpdateReqDto) {
 		final UpdateResDto updateResDto = new UpdateResDto();
@@ -386,6 +401,7 @@ public class TeacherServiceImpl implements TeacherService {
 				.getById(studentAttUpdateReqDto.getStudentAttendanceId());
 		studentAttendanceDb.setIsApproved(studentAttUpdateReqDto.getIsApproved());
 		studentAttendanceDb.setUpdatedBy(teacher.getId());
+
 		em.flush();
 
 		updateResDto.setVer(studentAttendanceDb.getVer());
@@ -394,12 +410,14 @@ public class TeacherServiceImpl implements TeacherService {
 		return updateResDto;
 	}
 
+	@Transactional
 	@Override
 	public ForumGetResDto getForumByElearning(ForumGetReqDto forumGetReqDto) {
 		final Forum forum = forumDao.getByElearningId(forumGetReqDto.getElearningId());
 		final List<Comment> comments = commentDao.getAll(forum.getId());
 
 		final ForumGetResDto forumResDto = new ForumGetResDto();
+		forumResDto.setId(forum.getId());
 		forumResDto.setForumTitle(forum.getForumTitle());
 		forumResDto.setForumCode(forum.getForumCode());
 		forumResDto.setForumBody(forum.getForumBody());
@@ -429,20 +447,21 @@ public class TeacherServiceImpl implements TeacherService {
 		return getUser;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createComment(CommentInsertReqDto commentInsertReqDto) {
 		final InsertResDto insertResDto = new InsertResDto();
 
 		final Long person = principalService.getPrincipal();
 		final User commentator = userDao.getById(person);
-		final LocalDateTime timeNow = LocalDateTime.now();
 		final Forum forum = forumDao.getById(commentInsertReqDto.getForumId());
 
 		Comment comment = new Comment();
 
-		comment.setCreatedAt(timeNow);
-		comment.setUser(commentator);
 		comment.setForum(forum);
+		comment.setUserComment(commentInsertReqDto.getComment());
+		comment.setUser(commentator);
+		comment.setCreatedBy(commentator.getId());
 
 		comment = commentDao.insert(comment);
 
@@ -452,6 +471,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return insertResDto;
 	}
 
+	@Transactional
 	@Override
 	public List<TasksGetResDto> getTask(TasksGetReqDto tasksGetReqDto) {
 		final List<Task> tasks = taskDao.getByElearningId(tasksGetReqDto.getElearningId());
@@ -477,6 +497,7 @@ public class TeacherServiceImpl implements TeacherService {
 		return questions;
 	}
 
+	@Transactional
 	@Override
 	public List<ReviewsGetResDto> getReview(ReviewsGetReqDto reviewsGetReqDto) {
 		final List<Review> getReviews = reviewDao.getByTaskId(reviewsGetReqDto.getTaskId());
@@ -551,6 +572,7 @@ public class TeacherServiceImpl implements TeacherService {
 					answerFileDto.setExt(answerFiles.get(j).getQuestionAnswerFile().getExt());
 					answerFilesDto.add(answerFileDto);
 				}
+				answerGetResDto.setAnswerFiles(answerFilesDto);
 			}
 
 			answer.setAnswer(answerGetResDto);
@@ -561,18 +583,20 @@ public class TeacherServiceImpl implements TeacherService {
 
 	}
 
+	@Transactional
 	@Override
 	public UpdateResDto updateReview(ReviewUpdateReqDto reviewUpdateReqDto) {
 		final UpdateResDto updateResDto = new UpdateResDto();
 		final Long person = principalService.getPrincipal();
 		final User teacher = userDao.getById(person);
-		
+
 		final Review reviewDb = reviewDao.getById(reviewUpdateReqDto.getReviewId());
 		reviewDb.setGrade(reviewUpdateReqDto.getGrade());
 		reviewDb.setNotes(reviewUpdateReqDto.getNotes());
 		reviewDb.setUpdatedBy(teacher.getId());
+
 		em.flush();
-		
+
 		updateResDto.setVer(reviewDb.getVer());
 		updateResDto.setMessage("Berhasil update review");
 

@@ -21,10 +21,6 @@ public class Question extends BaseModel {
 	@Column(name = "question", nullable = true)
 	private String question;
 
-	@ManyToOne
-	@JoinColumn(name = "photo_id")
-	private File questionFile;
-
 	public Task getTask() {
 		return task;
 	}
@@ -47,14 +43,6 @@ public class Question extends BaseModel {
 
 	public void setQuestion(String question) {
 		this.question = question;
-	}
-
-	public File getQuestionFile() {
-		return questionFile;
-	}
-
-	public void setQuestionFile(File questionFile) {
-		this.questionFile = questionFile;
 	}
 
 }

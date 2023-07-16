@@ -11,7 +11,7 @@ import javax.persistence.Table;
 public class QuestionAnswer extends BaseModel {
 
 	@ManyToOne
-	@JoinColumn(name = "question_type_id")
+	@JoinColumn(name = "question_id")
 	private Question question;
 
 	@Column(name = "essay_answer", nullable = true)

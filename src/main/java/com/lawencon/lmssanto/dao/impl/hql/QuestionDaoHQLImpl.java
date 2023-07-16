@@ -31,7 +31,7 @@ public class QuestionDaoHQLImpl implements QuestionDao{
 	
 	@Override
 	public List<Question> getByTaskId(Long taskId)  {
-		final String sql = "SELECT tq.id, tq.question , tq.questionType.id , tq.questionType.questionTypeCode "
+		final String sql = "SELECT tq.id, tq.question , tq.questionType.id , tq.questionType.questionTypeCode, tq.createdBy "
 				+ " FROM Question tq "
 				+ " WHERE tq.task.id = :taskId";
 		
@@ -59,6 +59,7 @@ public class QuestionDaoHQLImpl implements QuestionDao{
 				questionType.setQuestionTypeCode(questionArr[3].toString());
 				
 				getQuestion.setQuestionType(questionType);
+				getQuestion.setCreatedBy(Long.valueOf(questionArr[4].toString()));
 
 				questions.add(getQuestion);
 			}

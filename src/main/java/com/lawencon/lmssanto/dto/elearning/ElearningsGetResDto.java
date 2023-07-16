@@ -16,8 +16,6 @@ public class ElearningsGetResDto {
 		this.id = id;
 	}
 
-
-
 	public String getElearningName() {
 		return elearningName;
 	}

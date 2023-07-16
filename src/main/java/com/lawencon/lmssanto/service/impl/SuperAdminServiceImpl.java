@@ -114,10 +114,12 @@ public class SuperAdminServiceImpl implements SuperAdminService {
 		return role;
 	}
 
+	@Transactional
 	@Override
 	public InsertResDto createClassRoomAndAssignTeacher(ClassRoomInsertReqDto classRoomInsertReqDto) {
 		final InsertResDto insertRes = new InsertResDto();
-
+		final Long person = principalService.getPrincipal();
+		final User admin = userDao.getById(person);
 		// Insert classroom photo
 		File photo = new File();
 		photo.setFileName(classRoomInsertReqDto.getPhoto());
@@ -131,11 +133,12 @@ public class SuperAdminServiceImpl implements SuperAdminService {
 		newClassRoom.setClassroomCode(classRoomInsertReqDto.getClassroomCode());
 		newClassRoom.setPhoto(photo);
 		newClassRoom.setTeacher(teacher);
+		newClassRoom.setCreatedBy(admin.getId());
 
 		newClassRoom = classRoomDao.insert(newClassRoom);
 
 		insertRes.setId(newClassRoom.getId());
-		insertRes.setMessage("Berhasil membuat kelas dan teacher " + teacher.getProfile().getFullName());
+		insertRes.setMessage("Berhasil membuat kelas dan assign teacher " + teacher.getProfile().getFullName());
 		return insertRes;
 	}
 

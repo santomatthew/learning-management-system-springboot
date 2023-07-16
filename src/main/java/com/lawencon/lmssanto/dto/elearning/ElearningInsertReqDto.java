@@ -1,7 +1,5 @@
 package com.lawencon.lmssanto.dto.elearning;
 
-import java.time.LocalDateTime;
-
 public class ElearningInsertReqDto {
 
 	private String elearningName;
@@ -11,8 +9,8 @@ public class ElearningInsertReqDto {
 	private String forumTitle;
 	private String forumCode;
 	private String forumBody;
-	private LocalDateTime startDate;
-	private LocalDateTime endDate;
+	private String startDate;
+	private String endDate;
 
 	public String getElearningName() {
 		return elearningName;
@@ -28,22 +26,6 @@ public class ElearningInsertReqDto {
 
 	public void setClassRoomId(Long classRoomId) {
 		this.classRoomId = classRoomId;
-	}
-
-	public LocalDateTime getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(LocalDateTime startDate) {
-		this.startDate = startDate;
-	}
-
-	public LocalDateTime getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(LocalDateTime endDate) {
-		this.endDate = endDate;
 	}
 
 	public String getFileName() {
@@ -84,6 +66,22 @@ public class ElearningInsertReqDto {
 
 	public void setForumBody(String forumBody) {
 		this.forumBody = forumBody;
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
 	}
 
 }

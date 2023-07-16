@@ -1,6 +1,5 @@
 package com.lawencon.lmssanto.dao.impl.hql;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class ReviewDaoHQLImpl implements ReviewDao {
 	@Override
 	public Review insert(Review review) {
 		em.persist(review);
-
 		return review;
 	}
 

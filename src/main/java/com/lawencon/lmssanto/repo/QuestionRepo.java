@@ -11,7 +11,7 @@ import com.lawencon.lmssanto.model.Question;
 @Repository
 public interface QuestionRepo extends JpaRepository<Question, Long> {
 
-	@Query(value="SELECT tq.id, tq.question , tq.question_type_id , tqt.question_type_code FROM t_question tq "
+	@Query(value="SELECT tq.id, tq.question , tq.question_type_id , tqt.question_type_code, tq.ver, tq.created_by FROM t_question tq "
 				+ " INNER JOIN t_question_type tqt ON tq.question_type_id = tqt.id "
 				+ " WHERE tq.task_id = :taskId",nativeQuery = true)
 	List<Question> getByTaskId(Long taskId);
